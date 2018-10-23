@@ -208,7 +208,7 @@ template <class T>
 struct is_reference<T &> : true_type {};
 template <class T>
 struct is_reference<T &&> : true_type {};
-}
+}  // namespace aux
 namespace aux {
 using swallow = int[];
 template <int...>
@@ -365,7 +365,7 @@ struct base_or_void_ptr<T, U, true> {
 };
 template <class T, class U>
 using base_or_void_ptr_t = typename base_or_void_ptr<T, U>::type;
-}
+}  // namespace detail
 template <class... Ts>
 struct pool : pool_type<Ts>... {
   using boost_di_inject__ = type_list<Ts...>;
@@ -456,7 +456,7 @@ auto get_type_name(const char *ptr, index_sequence<Ns...>) {
   static const char str[] = {ptr[N + Ns]..., 0};
   return str;
 }
-}
+}  // namespace detail
 template <class T>
 const char *get_type_name() {
 #if defined(_MSC_VER)
@@ -487,7 +487,7 @@ struct string<T> {
   }
   static auto c_str_impl(...) { return get_type_name<T>(); }
 };
-}
+}  // namespace aux
 namespace back {
 struct _ {};
 struct initial {};
@@ -561,7 +561,7 @@ template <class TEvent>
 using get_generic_t = typename event_type<TEvent>::generic_t;
 template <class TEvent>
 using get_mapped_t = typename event_type<TEvent>::mapped_t;
-}
+}  // namespace back
 namespace back {
 template <class>
 class sm;
@@ -680,7 +680,7 @@ template <class T, class... Ts>
 struct convert_to_sm<T, aux::type_list<Ts...>> {
   using type = aux::type_list<sm_impl<T>, sm_impl<typename T::template rebind<Ts>>...>;
 };
-}
+}  // namespace back
 namespace back {
 template <class>
 class sm;
@@ -770,7 +770,7 @@ void log_guard(const aux::type<TLogger> &, TDeps &deps, const aux::zero_wrapper<
                bool result) {
   return static_cast<aux::pool_type<TLogger &> &>(deps).value.template log_guard<SM>(guard.get(), event, result);
 }
-}
+}  // namespace back
 namespace back {
 template <class>
 class sm;
@@ -857,7 +857,7 @@ struct transitions_sub<sm<TSM>> {
     return true;
   }
 };
-}
+}  // namespace back
 namespace back {
 template <class>
 class sm;
@@ -975,7 +975,7 @@ struct get_event_mapping_impl_helper<on_exit<T1, T2>, TMappings>
     : decltype(get_event_mapping_impl<on_exit<T1, T2>>((TMappings *)0)) {};
 template <class T, class TMappings>
 using get_event_mapping_t = get_event_mapping_impl_helper<T, TMappings>;
-}
+}  // namespace back
 namespace concepts {
 struct callable_fallback {
   void operator()();
@@ -987,7 +987,7 @@ aux::true_type test_callable(...);
 template <class, class T>
 struct callable
     : decltype(test_callable<aux::inherit<aux::conditional_t<__is_class(T), T, aux::none_type>, callable_fallback>>(0)) {};
-}
+}  // namespace concepts
 #if !defined(BOOST_SML_DISABLE_EXCEPTIONS)
 #if !(defined(__cpp_exceptions) || defined(__EXCEPTIONS))
 #define BOOST_SML_DISABLE_EXCEPTIONS true
@@ -1368,7 +1368,7 @@ class sm {
   deps_t deps_;
   sub_sms_t sub_sms_;
 };
-}
+}  // namespace back
 namespace concepts {
 template <class T>
 decltype(aux::declval<T>().operator()()) composable_impl(int);
@@ -1376,7 +1376,7 @@ template <class>
 void composable_impl(...);
 template <class T>
 struct composable : aux::is<aux::pool, decltype(composable_impl<T>(0))> {};
-}
+}  // namespace concepts
 namespace front {
 struct operator_base {};
 struct action_base {};
@@ -1611,7 +1611,7 @@ class not_ : operator_base {
  private:
   T g;
 };
-}
+}  // namespace front
 template <class T, __BOOST_SML_REQUIRES(concepts::callable<bool, T>::value)>
 auto operator!(const T &t) {
   return front::not_<aux::zero_wrapper<T>>(aux::zero_wrapper<T>{t});
@@ -1672,8 +1672,8 @@ struct defer : action_base {
     sm.defer_.push(event);
   }
 };
-}
-}
+}  // namespace actions
+}  // namespace front
 template <class T>
 struct thread_safe : aux::pair<back::thread_safety_policy__, thread_safe<T>> {
   using type = T;
@@ -1703,7 +1703,7 @@ auto transitional_impl(T &&t) -> aux::always<typename T::dst_state, typename T::
                                              decltype(T::initial), decltype(T::history)>;
 template <class T>
 struct transitional : decltype(transitional_impl(aux::declval<T>())) {};
-}
+}  // namespace concepts
 namespace front {
 namespace actions {
 struct process {
@@ -1724,8 +1724,8 @@ struct process {
     return process_impl<TEvent>{event};
   }
 };
-}
-}
+}  // namespace actions
+}  // namespace front
 namespace front {
 template <class, class>
 struct transition_eg;
@@ -1743,7 +1743,7 @@ struct event {
   }
   auto operator()() const { return TEvent{}; }
 };
-}
+}  // namespace front
 namespace front {
 struct initial_state {};
 struct history_state {};
@@ -1825,7 +1825,7 @@ template <class T>
 struct state_sm<T, aux::enable_if_t<concepts::composable<T>::value>> {
   using type = state<back::sm<back::sm_policy<T>>>;
 };
-}
+}  // namespace front
 namespace front {
 struct internal {};
 template <class, class>
@@ -2251,7 +2251,7 @@ struct transition<state<internal>, state<S2>, front::event<E>, always, none> {
   }
   __BOOST_SML_ZERO_SIZE_ARRAY(aux::byte);
 };
-}
+}  // namespace front
 using _ = back::_;
 template <class TEvent>
 front::event<TEvent> event __BOOST_SML_VT_INIT;
