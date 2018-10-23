@@ -111,10 +111,6 @@ struct remove_reference<T &> {
   using type = T;
 };
 template <class T>
-struct remove_reference<const T &> {
-  using type = T;
-};
-template <class T>
 struct remove_reference<T &&> {
   using type = T;
 };
@@ -139,7 +135,7 @@ template <class R, class T, class... TArgs>
 struct function_traits<R (T::*)(TArgs...) const> {
   using args = type_list<TArgs...>;
 };
-#if __cplusplus > 201402L // __pph__
+#if __cplusplus > 201402L && __cpp_noexcept_function_type >= 201510  // __pph__
 template <class R, class... TArgs>
 struct function_traits<R (*)(TArgs...) noexcept> {
   using args = type_list<TArgs...>;
@@ -156,9 +152,32 @@ template <class R, class T, class... TArgs>
 struct function_traits<R (T::*)(TArgs...) const noexcept> {
   using args = type_list<TArgs...>;
 };
-#endif // __pph__
+#endif  // __pph__
 template <class T>
 using function_traits_t = typename function_traits<T>::args;
+
+template <class T>
+struct remove_const {
+  using type = T;
+};
+template <class T>
+struct remove_const<const T> {
+  using type = T;
+};
+template <class T>
+using remove_const_t = typename remove_const<T>::type;
+
+template <class T>
+struct is_const : false_type {};
+template <class T>
+struct is_const<const T> : true_type {};
+
+template <class T>
+struct is_reference : false_type {};
+template <class T>
+struct is_reference<T &> : true_type {};
+template <class T>
+struct is_reference<T &&> : true_type {};
 
 }  // aux
 
