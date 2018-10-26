@@ -1,6 +1,6 @@
 project('sml','cpp', 
-        version : '1.1.0',
         license : 'boost',
+        version: run_command('cat', files('version.txt')).stdout().strip(),
         default_options : ['cpp_std=c++14']
       )
 
